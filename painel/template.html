@@ -1,0 +1,580 @@
+<title>Lobby na Esplanada</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,500..800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: uma coluna de leitura (máx. 1120px). Barra de filtros fixa no topo;
+   ranking com painel de detalhe ao lado no desktop; mapa, setores e ministros abaixo. */
+:root {
+  --bg: #f4f6f6;          /* concreto claro, leve viés azul */
+  --surface: #ffffff;
+  --ink: #12171a;
+  --ink-2: #47515a;
+  --muted: #6f7a82;
+  --line: #dde2e5;
+  --line-2: #c9d0d4;
+  --accent: #2a78d6;       /* azul de dados */
+  --accent-ink: #1c5cab;
+  --accent-soft: #e3eefb;
+  --h0: #cde2fb; --h1: #9ec5f4; --h2: #6da7ec; --h3: #3987e5; --h4: #256abf; --h5: #184f95;
+  --h-ink-lo: #12171a; --h-ink-hi: #ffffff;
+  --f-display: "Archivo", "Arial Narrow", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111416; --surface: #181d20; --ink: #edf1f3; --ink-2: #b6bfc5; --muted: #87929a;
+    --line: #283035; --line-2: #36414a; --accent: #3987e5; --accent-ink: #86b6ef; --accent-soft: #17283b;
+    --h0: #1b2b40; --h1: #184f95; --h2: #256abf; --h3: #3987e5; --h4: #6da7ec; --h5: #9ec5f4;
+    --h-ink-lo: #edf1f3; --h-ink-hi: #0d1a2a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111416; --surface: #181d20; --ink: #edf1f3; --ink-2: #b6bfc5; --muted: #87929a;
+  --line: #283035; --line-2: #36414a; --accent: #3987e5; --accent-ink: #86b6ef; --accent-soft: #17283b;
+  --h0: #1b2b40; --h1: #184f95; --h2: #256abf; --h3: #3987e5; --h4: #6da7ec; --h5: #9ec5f4;
+  --h-ink-lo: #edf1f3; --h-ink-hi: #0d1a2a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.55 var(--f-body); }
+.wrap { max-width: 1120px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2.2rem, 6vw, 3.6rem); font-weight: 800; font-stretch: 78%; line-height: 1; letter-spacing: -0.01em; }
+h2 { font-size: 1.45rem; font-weight: 700; font-stretch: 88%; }
+h3 { font-size: 1.02rem; font-weight: 700; font-stretch: 95%; }
+p { margin: 0; }
+.eyebrow { font: 500 0.72rem/1 var(--f-mono); text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted); }
+.lede { color: var(--ink-2); max-width: 64ch; font-size: 1.04rem; }
+a { color: var(--accent-ink); }
+button, select, input { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Cabeçalho */
+header.top { padding-block: 40px 28px; display: grid; gap: 18px; }
+.facts { display: flex; flex-wrap: wrap; gap: 10px 28px; border-top: 1px solid var(--line-2); padding-top: 14px; }
+.fact { display: grid; gap: 2px; }
+.fact b { font: 600 1.35rem/1.1 var(--f-mono); font-variant-numeric: tabular-nums; }
+.fact span { font-size: 0.8rem; color: var(--muted); }
+
+/* Filtros */
+.filters { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(6px); border-block: 1px solid var(--line); }
+.filters .wrap { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; padding-block: 10px; }
+.fgroup { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.fgroup > label.lab { font: 500 0.7rem/1 var(--f-mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.chip { border: 1px solid var(--line-2); background: var(--surface); border-radius: 999px; padding: 3px 10px; font-size: 0.82rem; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+#f-orgao { max-width: 24ch; } #f-grupo { max-width: 26ch; }
+select, input[type="search"] { border: 1px solid var(--line-2); background: var(--surface); border-radius: 6px; padding: 4px 8px; font-size: 0.85rem; max-width: 100%; }
+input[type="search"] { width: 15ch; }
+.check { display: inline-flex; gap: 6px; align-items: center; font-size: 0.85rem; cursor: pointer; }
+.active-note { font-size: 0.8rem; color: var(--muted); }
+
+main { display: grid; gap: 56px; padding-block: 32px 64px; }
+section { display: grid; gap: 16px; }
+.sec-head { display: grid; gap: 6px; }
+.sec-head p { color: var(--ink-2); max-width: 70ch; font-size: 0.94rem; }
+
+/* Ranking */
+.rank-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+@media (max-width: 860px) { .rank-grid { grid-template-columns: 1fr; } }
+ol.rank { list-style: none; margin: 0; padding: 0; display: grid; }
+.rrow { display: grid; grid-template-columns: 2.2em minmax(0, 1fr) 4.6em; gap: 4px 10px; align-items: center; padding: 7px 8px; border-radius: 6px; cursor: pointer; border: 1px solid transparent; text-align: left; width: 100%; background: none; }
+.rrow:hover { background: var(--surface); }
+.rrow[aria-current="true"] { background: var(--surface); border-color: var(--line-2); }
+.rrow .pos { font: 500 0.78rem/1 var(--f-mono); color: var(--muted); text-align: right; }
+.rrow .nm { display: flex; gap: 8px; align-items: baseline; min-width: 0; }
+.rrow .nm strong { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rrow .nm small { color: var(--muted); font-size: 0.76rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rrow .val { text-align: right; font: 500 0.86rem/1 var(--f-mono); font-variant-numeric: tabular-nums; }
+.rrow .bar { grid-column: 2 / 4; height: 6px; background: var(--line); border-radius: 0 3px 3px 0; overflow: hidden; }
+.rrow .bar i { display: block; height: 100%; background: var(--accent); border-radius: 0 3px 3px 0; }
+.more { justify-self: start; margin-top: 6px; }
+.empty { color: var(--muted); padding: 16px 8px; }
+
+.detail { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 16px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 64px); }
+@media (max-width: 860px) { .detail { position: static; } }
+.tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.tag { font-size: 0.74rem; border: 1px solid var(--line-2); border-radius: 4px; padding: 1px 7px; color: var(--ink-2); }
+.kv { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.kv div { display: grid; gap: 2px; }
+.kv b { font: 600 1.2rem/1.1 var(--f-mono); font-variant-numeric: tabular-nums; }
+.kv span { font-size: 0.74rem; color: var(--muted); }
+.years { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; align-items: end; height: 92px; }
+.years .yc { display: grid; grid-template-rows: 1fr auto auto; height: 100%; gap: 3px; text-align: center; }
+.years .yb { align-self: end; background: var(--accent); border-radius: 3px 3px 0 0; min-height: 2px; }
+.years .yb.off { background: var(--line-2); }
+.years small { font: 0.68rem/1 var(--f-mono); color: var(--muted); }
+.years em { font: normal 500 0.72rem/1 var(--f-mono); }
+ul.olist { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+ul.olist li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; font-size: 0.86rem; align-items: baseline; }
+ul.olist li span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cnpj { font: 0.76rem var(--f-mono); color: var(--muted); }
+
+/* Mapa */
+.heat-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table.heat { border-collapse: separate; border-spacing: 2px; font-size: 0.78rem; margin: 8px; }
+table.heat th { font-weight: 500; color: var(--ink-2); }
+table.heat thead th { font: 500 0.72rem/1.2 var(--f-mono); writing-mode: vertical-rl; transform: rotate(180deg); text-align: left; padding: 4px 2px; max-height: 150px; white-space: nowrap; }
+table.heat tbody th { text-align: right; padding-right: 8px; white-space: nowrap; max-width: 210px; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+table.heat td { width: 42px; min-width: 42px; height: 28px; text-align: center; border-radius: 3px; font: 500 0.72rem/1 var(--f-mono); font-variant-numeric: tabular-nums; }
+td.c0 { background: var(--bg); color: var(--muted); }
+td.h0 { background: var(--h0); color: var(--h-ink-lo); } td.h1 { background: var(--h1); color: var(--h-ink-lo); } td.h2 { background: var(--h2); color: var(--h-ink-lo); }
+td.h3 { background: var(--h3); color: var(--h-ink-hi); } td.h4 { background: var(--h4); color: var(--h-ink-hi); } td.h5 { background: var(--h5); color: var(--h-ink-hi); }
+.legend { display: flex; gap: 4px; align-items: center; font: 0.72rem var(--f-mono); color: var(--muted); flex-wrap: wrap; }
+.legend i { width: 22px; height: 10px; border-radius: 2px; display: inline-block; }
+
+/* Setores + série */
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 32px; align-items: start; }
+@media (max-width: 860px) { .two { grid-template-columns: 1fr; } }
+.hbars { display: grid; gap: 7px; }
+.hb { display: grid; grid-template-columns: minmax(0, 14em) minmax(0, 1fr) 4.2em; gap: 10px; align-items: center; font-size: 0.84rem; }
+.hb span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink-2); }
+.hb .track { height: 12px; }
+.hb .track i { display: block; height: 100%; background: var(--accent); border-radius: 0 4px 4px 0; }
+.hb .v { text-align: right; font: 500 0.8rem var(--f-mono); font-variant-numeric: tabular-nums; }
+.chart-box { position: relative; }
+svg.line { width: 100%; height: auto; display: block; overflow: visible; }
+svg.line text { fill: var(--muted); font: 10px var(--f-mono); }
+svg.line .grid { stroke: var(--line); stroke-width: 1; }
+svg.line .area { fill: var(--accent); opacity: 0.12; }
+svg.line .stroke { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; }
+svg.line .lag { fill: var(--line); opacity: 0.6; }
+svg.line .xh { stroke: var(--ink-2); stroke-width: 1; stroke-dasharray: 2 3; }
+svg.line .dot { fill: var(--accent); stroke: var(--surface); stroke-width: 2; }
+
+/* Ministros */
+.tbl-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table.min { border-collapse: collapse; width: 100%; font-size: 0.86rem; min-width: 640px; }
+table.min th, table.min td { padding: 8px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+table.min th { font: 500 0.7rem/1.2 var(--f-mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); background: var(--surface); position: sticky; top: 0; cursor: pointer; white-space: nowrap; }
+table.min th[aria-sort] { color: var(--ink); }
+table.min td.r, table.min th.r { text-align: right; }
+table.min tr:last-child td { border-bottom: 0; }
+.share { display: inline-grid; grid-template-columns: 46px auto; gap: 6px; align-items: center; }
+.share i { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; display: block; }
+.share i b { display: block; height: 100%; background: var(--accent); }
+.who { color: var(--ink-2); font-size: 0.82rem; }
+
+/* Método */
+.method { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 18px 32px; font-size: 0.9rem; color: var(--ink-2); }
+.method h3 { color: var(--ink); margin-bottom: 4px; }
+.method ul { margin: 0; padding-left: 1.1em; display: grid; gap: 4px; }
+footer { border-top: 1px solid var(--line); padding-block: 20px 40px; color: var(--muted); font-size: 0.8rem; }
+
+.tip { position: fixed; pointer-events: none; z-index: 20; background: var(--ink); color: var(--bg); padding: 7px 9px; border-radius: 6px; font-size: 0.78rem; line-height: 1.35; max-width: 260px; }
+.tip b { font-family: var(--f-mono); }
+@media (prefers-reduced-motion: no-preference) { .rrow .bar i, .hb .track i, .years .yb { transition: width .25s ease, height .25s ease; } }
+</style>
+
+<header class="top wrap">
+  <p class="eyebrow">Agendas públicas do Executivo federal · e-Agendas / CGU</p>
+  <h1>Quem senta à mesa com o governo federal</h1>
+  <p class="lede">Toda reunião de autoridade federal com representante do setor privado precisa ser registrada na agenda pública, com a entidade representada e o CNPJ. Este painel junta esses registros e mostra quais empresas, associações e escritórios mais têm acesso a ministérios e agências reguladoras.</p>
+  <div class="facts" id="facts"></div>
+</header>
+
+<nav class="filters" aria-label="Filtros">
+  <div class="wrap">
+    <div class="fgroup" id="f-anos"><label class="lab">Período</label></div>
+    <div class="fgroup">
+      <label class="lab" for="f-grupo">Onde</label>
+      <select id="f-grupo"></select>
+    </div>
+    <div class="fgroup">
+      <label class="lab" for="f-orgao">Órgão</label>
+      <select id="f-orgao"></select>
+    </div>
+    <div class="fgroup">
+      <label class="lab" for="f-setor">Setor</label>
+      <select id="f-setor"></select>
+    </div>
+    <label class="check" for="f-estatais"><input type="checkbox" id="f-estatais"> Incluir estatais e organismos internacionais</label>
+    <div class="fgroup">
+      <label class="lab" for="f-busca">Buscar</label>
+      <input type="search" id="f-busca" placeholder="ex.: Febraban">
+    </div>
+  </div>
+</nav>
+
+<main class="wrap">
+  <section id="ranking" aria-labelledby="h-rank">
+    <div class="sec-head">
+      <p class="eyebrow">Ranking</p>
+      <h2 id="h-rank">Quem mais se reúne com o governo</h2>
+      <p id="rank-note"></p>
+    </div>
+    <div class="rank-grid">
+      <div>
+        <ol class="rank" id="rank"></ol>
+        <button class="chip more" id="more" type="button">Mostrar 50</button>
+      </div>
+      <aside class="detail" id="detail" aria-live="polite"></aside>
+    </div>
+  </section>
+
+  <section id="mapa" aria-labelledby="h-mapa">
+    <div class="sec-head">
+      <p class="eyebrow">Mapa de influência</p>
+      <h2 id="h-mapa">Que portas cada um bate</h2>
+      <p>As 15 primeiras entidades do ranking acima e os órgãos que mais as recebem. Cada célula conta reuniões entre a entidade e o órgão no período escolhido. Clique numa linha para ver o detalhe.</p>
+    </div>
+    <div class="heat-scroll"><table class="heat" id="heat"></table></div>
+    <div class="legend" id="heat-legend"></div>
+  </section>
+
+  <section id="setores" aria-labelledby="h-set">
+    <div class="sec-head">
+      <p class="eyebrow">Setores e tempo</p>
+      <h2 id="h-set">De onde vem a pressão</h2>
+    </div>
+    <div class="two">
+      <div class="chart-box">
+        <h3>Reuniões por setor</h3>
+        <p class="active-note" id="set-note" style="margin-block:4px 12px"></p>
+        <div class="hbars" id="hbars"></div>
+      </div>
+      <div class="chart-box">
+        <h3>Reuniões com o setor privado, por mês</h3>
+        <p class="active-note" style="margin-block:4px 12px">Todas as entidades privadas e todos os órgãos. A faixa cinza marca os meses em que registros atrasados ainda costumam chegar.</p>
+        <div id="line"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="ministros" aria-labelledby="h-min">
+    <div class="sec-head">
+      <p class="eyebrow">Primeiro escalão</p>
+      <h2 id="h-min">Os ministros e o setor privado</h2>
+      <p>Reuniões que os próprios ministros de Estado registraram com entidades privadas, desde outubro de 2022. A coluna de agenda mostra que parte das reuniões de cada ministro teve participante privado. Esta tabela não muda com os filtros.</p>
+    </div>
+    <div class="tbl-scroll"><table class="min" id="min"></table></div>
+  </section>
+
+  <section id="metodo" aria-labelledby="h-met">
+    <div class="sec-head">
+      <p class="eyebrow">Método</p>
+      <h2 id="h-met">Como os números foram feitos</h2>
+    </div>
+    <div class="method">
+      <div>
+        <h3>Fonte</h3>
+        <p>Arquivo mensal de dados abertos do e-Agendas, publicado pela Controladoria-Geral da União. Ele cobre autoridades do Executivo federal a partir do nível DAS 5, desde outubro de 2022. A agenda pessoal do Presidente fica no site do Planalto e não está aqui.</p>
+      </div>
+      <div>
+        <h3>O que conta como reunião</h3>
+        <ul>
+          <li>Só reuniões e audiências. Eventos e audiências públicas ficam de fora.</li>
+          <li>Compromissos marcados como cancelados são descartados.</li>
+          <li>Uma reunião com várias autoridades conta uma vez por entidade.</li>
+          <li>Pessoas registradas como "interesse próprio" não entram no ranking.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Quem é quem</h3>
+        <ul>
+          <li>Matriz e filiais foram juntadas pela raiz do CNPJ.</li>
+          <li>Só um quarto dos registros traz CNPJ. Os demais foram ligados por nome, com revisão manual das 400 maiores entidades.</li>
+          <li>Marcas da mesma empresa foram unidas, como Vivo e Telefônica. Subsidiárias com CNPJ próprio ficaram separadas.</li>
+          <li>Órgãos públicos, veículos de imprensa e registros genéricos, como "Advogado", foram excluídos.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Como ler</h3>
+        <ul>
+          <li>Reunião registrada não indica irregularidade. É a regra de transparência funcionando.</li>
+          <li>Órgãos que registram melhor aparecem mais. Pouca reunião pode significar pouco registro.</li>
+          <li>Fornecedores, como empresas de TI, aparecem por reuniões de gestão de contrato.</li>
+          <li>Concessionárias reguladas se reúnem com a agência por obrigação contratual.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+<footer><div class="wrap" id="foot"></div></footer>
+<div class="tip" id="tip" hidden></div>
+
+<script>
+const D = /*__DATA__*/null;
+
+const fmt = new Intl.NumberFormat('pt-BR');
+const ANOS = [2022, 2023, 2024, 2025, 2026];
+const ANO_ROT = { 2022: '2022 · out–dez', 2026: '2026 · jan–set' };
+const PRIVADO = new Set(['Empresa', 'Associação empresarial', 'Advocacia e consultoria', 'Sindicato e movimento social', 'Sociedade civil e academia']);
+const EXTRA = new Set(['Estatal e paraestatal', 'Internacional']);
+const SETOR_FORA = new Set(['Não classificado', '—', 'Imprensa e comunicação', 'Outros']);
+const SETOR_EXTRA = new Set(['Sistema S e fomento', 'Organismos internacionais']);
+const $ = (s) => document.querySelector(s);
+const el = (t, a = {}, h = '') => { const e = document.createElement(t); for (const k in a) e.setAttribute(k, a[k]); if (h) e.innerHTML = h; return e; };
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const titulo = (s) => s.toLowerCase().replace(/(^|\s)(\p{L})/gu, (m, a, b) => a + b.toUpperCase()).replace(/\b(De|Da|Do|Das|Dos|E)\b/g, (w) => w.toLowerCase());
+
+const state = { anos: new Set(ANOS), grupo: 4, orgao: -1, setor: '', extra: false, busca: '', sel: 0, n: 25 };
+try { const s = JSON.parse(localStorage.getItem('lobby-filtros') || 'null'); if (s) { state.grupo = s.grupo ?? 4; state.extra = !!s.extra; if (Array.isArray(s.anos) && s.anos.length) state.anos = new Set(s.anos); } } catch (e) {}
+const salvar = () => { try { localStorage.setItem('lobby-filtros', JSON.stringify({ grupo: state.grupo, extra: state.extra, anos: [...state.anos] })); } catch (e) {} };
+
+// índices
+const E = D.entidades, O = D.orgaos;
+const byEntAG = new Map(); // `${e}|${ano}|${g}` -> n
+for (const [e, a, g, n] of D.ent_ano_grupo) byEntAG.set(e + '|' + a + '|' + g, n);
+const tripByEnt = new Map();
+for (const t of D.triplas) { (tripByEnt.get(t[0]) || tripByEnt.set(t[0], []).get(t[0])).push(t); }
+
+function tipoOk(e) { return PRIVADO.has(e.tipo) || (state.extra && EXTRA.has(e.tipo)); }
+function contagem(i) {
+  if (state.orgao >= 0) {
+    let s = 0; for (const [, o, a, n] of tripByEnt.get(i) || []) if (o === state.orgao && state.anos.has(a)) s += n; return s;
+  }
+  let s = 0; for (const a of state.anos) s += byEntAG.get(i + '|' + a + '|' + state.grupo) || 0; return s;
+}
+function ranking() {
+  const q = state.busca.trim().toLowerCase();
+  const out = [];
+  E.forEach((e, i) => {
+    if (!tipoOk(e)) return;
+    if (state.setor && e.setor !== state.setor) return;
+    const n = contagem(i); if (!n) return;
+    out.push({ i, n, hit: !q || e.rotulo.toLowerCase().includes(q) });
+  });
+  out.sort((a, b) => b.n - a.n);
+  out.forEach((r, k) => r.pos = k + 1);
+  return q ? out.filter((r) => r.hit) : out;
+}
+function orgaoOk(o) { return state.orgao >= 0 ? o === state.orgao : (state.grupo === 4 || D.grupos[state.grupo] === O[o].grupo); }
+function orgaosDe(i) {
+  const m = new Map();
+  for (const [, o, a, n] of tripByEnt.get(i) || []) if (state.anos.has(a) && orgaoOk(o)) m.set(o, (m.get(o) || 0) + n);
+  return [...m.entries()].sort((a, b) => b[1] - a[1]);
+}
+function escopoTexto() {
+  const anos = [...state.anos].sort();
+  const per = anos.length === ANOS.length ? 'de out/2022 a set/2026' : anos.length === 1 ? 'em ' + anos[0] : 'em ' + anos.join(', ');
+  const onde = state.orgao >= 0 ? 'com ' + O[state.orgao].sigla : state.grupo === 4 ? 'com todos os órgãos' : 'com ' + D.grupos[state.grupo].toLowerCase();
+  return { per, onde };
+}
+
+// cabeçalho
+function facts() {
+  const t = D.totais;
+  const items = [
+    [fmt.format(t.reunioes), 'reuniões e eventos registrados'],
+    [fmt.format(t.reunioes_com_privados), 'reuniões com entidade privada'],
+    [fmt.format(t.entidades_privadas), 'entidades privadas distintas'],
+    [fmt.format(t.autoridades), 'autoridades com agenda'],
+    [String(t.orgaos), 'órgãos'],
+  ];
+  $('#facts').innerHTML = items.map(([b, s]) => `<div class="fact"><b>${b}</b><span>${s}</span></div>`).join('');
+}
+
+// filtros
+function montaFiltros() {
+  const fa = $('#f-anos');
+  const todos = el('button', { class: 'chip', type: 'button', 'data-ano': 'todos' }, 'Tudo');
+  fa.appendChild(todos);
+  for (const a of ANOS) fa.appendChild(el('button', { class: 'chip', type: 'button', 'data-ano': a, title: ANO_ROT[a] || String(a) }, String(a)));
+  fa.addEventListener('click', (ev) => {
+    const b = ev.target.closest('button'); if (!b) return;
+    const v = b.dataset.ano;
+    if (v === 'todos') state.anos = new Set(ANOS);
+    else { const a = +v; if (state.anos.size === ANOS.length) state.anos = new Set([a]); else if (state.anos.has(a)) { state.anos.delete(a); if (!state.anos.size) state.anos = new Set(ANOS); } else state.anos.add(a); }
+    salvar(); render();
+  });
+  const g = $('#f-grupo');
+  g.appendChild(el('option', { value: 4 }, 'Todos os órgãos'));
+  D.grupos.forEach((n, i) => g.appendChild(el('option', { value: i }, n)));
+  g.value = state.grupo;
+  g.addEventListener('change', () => { state.grupo = +g.value; state.orgao = -1; salvar(); preencheOrgaos(); render(); });
+  preencheOrgaos();
+  $('#f-orgao').addEventListener('change', (ev) => { state.orgao = +ev.target.value; render(); });
+  const s = $('#f-setor');
+  s.appendChild(el('option', { value: '' }, 'Todos'));
+  [...new Set(E.map((e) => e.setor))].filter((x) => !SETOR_FORA.has(x)).sort((a, b) => a.localeCompare(b, 'pt')).forEach((x) => s.appendChild(el('option', { value: x }, esc(x))));
+  s.addEventListener('change', () => { state.setor = s.value; render(); });
+  const c = $('#f-estatais'); c.checked = state.extra;
+  c.addEventListener('change', () => { state.extra = c.checked; salvar(); render(); });
+  const b = $('#f-busca');
+  b.addEventListener('input', () => { state.busca = b.value; render(); });
+  $('#more').addEventListener('click', () => { state.n = state.n === 25 ? 50 : 25; render(); });
+}
+function preencheOrgaos() {
+  const sel = $('#f-orgao'); sel.innerHTML = '';
+  sel.appendChild(el('option', { value: -1 }, 'Todos do grupo'));
+  O.forEach((o, i) => { if (o.privadas >= 20 && (state.grupo === 4 || D.grupos[state.grupo] === o.grupo)) sel.appendChild(el('option', { value: i }, esc(o.sigla === o.nome ? o.nome : o.sigla + ' · ' + o.nome))); });
+  sel.value = state.orgao;
+}
+function syncChips() {
+  document.querySelectorAll('#f-anos .chip').forEach((b) => {
+    const v = b.dataset.ano;
+    b.setAttribute('aria-pressed', v === 'todos' ? String(state.anos.size === ANOS.length) : String(state.anos.size !== ANOS.length && state.anos.has(+v)));
+  });
+}
+
+// ranking + detalhe
+function renderRank(R) {
+  const ol = $('#rank'); ol.innerHTML = '';
+  const top = R.slice(0, state.n);
+  if (!top.length) { ol.innerHTML = '<li class="empty">Nenhuma entidade com reuniões nesse recorte. Amplie o período ou troque o órgão.</li>'; $('#more').hidden = true; return; }
+  const max = top[0].n;
+  if (!top.some((r) => r.i === state.sel)) state.sel = top[0].i;
+  for (const r of top) {
+    const e = E[r.i];
+    const li = el('li');
+    const b = el('button', { class: 'rrow', type: 'button', 'aria-current': String(r.i === state.sel) });
+    b.innerHTML = `<span class="pos">${r.pos}</span><span class="nm"><strong>${esc(e.rotulo)}</strong><small>${esc(e.setor)}</small></span><span class="val">${fmt.format(r.n)}</span><span class="bar"><i style="width:${(r.n / max * 100).toFixed(1)}%"></i></span>`;
+    b.addEventListener('click', () => { state.sel = r.i; render(false); if (matchMedia('(max-width: 860px)').matches) $('#detail').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); });
+    li.appendChild(b); ol.appendChild(li);
+  }
+  $('#more').hidden = R.length <= 25;
+  $('#more').textContent = state.n === 25 ? 'Mostrar 50' : 'Mostrar 25';
+  const { per, onde } = escopoTexto();
+  $('#rank-note').textContent = `Reuniões distintas ${onde}, ${per}. ${fmt.format(R.length)} entidades no recorte, entre as 400 com mais reuniões no período todo.`;
+}
+function renderDetail(R) {
+  const box = $('#detail');
+  const i = state.sel; const e = E[i]; if (!e) { box.innerHTML = ''; return; }
+  const r = R.find((x) => x.i === i);
+  const porAno = ANOS.map((a) => {
+    if (state.orgao >= 0) { let s = 0; for (const [, o, aa, n] of tripByEnt.get(i) || []) if (o === state.orgao && aa === a) s += n; return s; }
+    return byEntAG.get(i + '|' + a + '|' + state.grupo) || 0;
+  });
+  const maxA = Math.max(1, ...porAno);
+  const orgs = orgaosDe(i);
+  const nOrg = orgs.length;
+  const total = r ? r.n : 0;
+  const cnpj = e.cnpj ? `<span class="cnpj">CNPJ raiz ${e.cnpj.replace(/^(\d{2})(\d{3})(\d{3})$/, '$1.$2.$3')}</span>` : '<span class="cnpj">Sem CNPJ no registro; identificada pelo nome</span>';
+  box.innerHTML = `
+    <div style="display:grid;gap:8px">
+      <p class="eyebrow">Detalhe</p>
+      <h3 style="font-size:1.35rem">${esc(e.rotulo)}</h3>
+      <div class="tags"><span class="tag">${esc(e.tipo)}</span><span class="tag">${esc(e.setor)}</span></div>
+      ${cnpj}
+    </div>
+    <div class="kv">
+      <div><b>${fmt.format(total)}</b><span>reuniões no recorte</span></div>
+      <div><b>${r ? r.pos + 'º' : '–'}</b><span>posição</span></div>
+      <div><b>${nOrg}</b><span>órgãos diferentes</span></div>
+    </div>
+    <div style="display:grid;gap:6px">
+      <p class="eyebrow">Por ano</p>
+      <div class="years">${ANOS.map((a, k) => `<div class="yc" title="${ANO_ROT[a] || a}: ${fmt.format(porAno[k])} reuniões"><div class="yb ${state.anos.has(a) ? '' : 'off'}" style="height:${(porAno[k] / maxA * 100).toFixed(1)}%"></div><em>${fmt.format(porAno[k])}</em><small>${a}</small></div>`).join('')}</div>
+    </div>
+    <div style="display:grid;gap:8px">
+      <p class="eyebrow">Onde mais se reúne</p>
+      <ul class="olist">${orgs.slice(0, 7).map(([o, n]) => `<li><span title="${esc(O[o].nome)}">${esc(O[o].nome)}</span><span class="num">${fmt.format(n)}</span></li>`).join('') || '<li><span>Nenhum órgão no recorte</span></li>'}</ul>
+    </div>`;
+}
+
+// mapa
+function renderHeat(R) {
+  const rows = R.slice(0, 15).map((r) => r.i);
+  const tot = new Map(); const cell = new Map();
+  for (const i of rows) for (const [o, n] of orgaosDe(i)) { tot.set(o, (tot.get(o) || 0) + n); cell.set(i + '|' + o, n); }
+  const cols = [...tot.entries()].sort((a, b) => b[1] - a[1]).slice(0, 12).map((x) => x[0]);
+  const t = $('#heat');
+  if (!rows.length || !cols.length) { t.innerHTML = '<tbody><tr><td class="empty" style="width:auto">Sem dados nesse recorte.</td></tr></tbody>'; $('#heat-legend').innerHTML = ''; return; }
+  let max = 1; for (const v of cell.values()) max = Math.max(max, v);
+  const step = (v) => Math.min(5, Math.floor(Math.sqrt(v / max) * 6));
+  let h = '<thead><tr><th></th>' + cols.map((o) => `<th scope="col" title="${esc(O[o].nome)}">${esc(O[o].sigla)}</th>`).join('') + '</tr></thead><tbody>';
+  for (const i of rows) {
+    h += `<tr data-i="${i}" style="cursor:pointer"><th scope="row" title="${esc(E[i].rotulo)}">${esc(E[i].rotulo)}</th>`;
+    for (const o of cols) { const v = cell.get(i + '|' + o) || 0; h += `<td class="${v ? 'h' + step(v) : 'c0'}" data-o="${o}" data-v="${v}">${v || '·'}</td>`; }
+    h += '</tr>';
+  }
+  t.innerHTML = h + '</tbody>';
+  const bounds = [0, 1, 2, 3, 4, 5].map((k) => Math.max(1, Math.round(max * (k / 6) ** 2)));
+  $('#heat-legend').innerHTML = '<span>reuniões:</span>' + bounds.map((b, k) => `<i style="background:var(--h${k})"></i><span>${k === 0 ? '1' : fmt.format(b)}${k === 5 ? '+' : ''}</span>`).join('') + `<span style="margin-left:8px">· até ${fmt.format(max)}</span>`;
+}
+
+// setores
+function renderSetores() {
+  const m = new Map();
+  for (const [s, a, g, n] of D.setor_ano_grupo) {
+    if (g !== state.grupo || !state.anos.has(a) || SETOR_FORA.has(s)) continue;
+    if (!state.extra && SETOR_EXTRA.has(s)) continue;
+    m.set(s, (m.get(s) || 0) + n);
+  }
+  const arr = [...m.entries()].sort((a, b) => b[1] - a[1]);
+  const max = arr.length ? arr[0][1] : 1;
+  $('#hbars').innerHTML = arr.map(([s, n]) => `<div class="hb" ${state.setor === s ? 'style="font-weight:600"' : ''}><span title="${esc(s)}">${esc(s)}</span><span class="track"><i style="width:${(n / max * 100).toFixed(1)}%"></i></span><span class="v">${fmt.format(n)}</span></div>`).join('');
+  const { per, onde } = escopoTexto();
+  const ondeS = state.orgao >= 0 ? (state.grupo === 4 ? 'com todos os órgãos' : 'com ' + D.grupos[state.grupo].toLowerCase()) : onde;
+  $('#set-note').textContent = `Reuniões distintas ${ondeS}, ${per}. Uma reunião com dois setores conta nos dois. Ficam de fora as entidades sem setor identificado, a maior parte da cauda longa.`;
+}
+
+// série mensal
+function renderLine() {
+  const meses = D.meses; const ys = meses.map((m) => D.serie_privadas[m] || 0);
+  const W = 560, H = 230, L = 44, R = 12, T = 12, B = 26;
+  const max = Math.ceil(Math.max(...ys) / 1000) * 1000;
+  const x = (k) => L + (k / (meses.length - 1)) * (W - L - R);
+  const y = (v) => T + (1 - v / max) * (H - T - B);
+  const pts = ys.map((v, k) => `${x(k).toFixed(1)},${y(v).toFixed(1)}`);
+  const ticks = [0, max / 4, max / 2, (3 * max) / 4, max];
+  const lag0 = meses.length - 3;
+  let s = `<svg class="line" viewBox="0 0 ${W} ${H}" role="img" aria-label="Reuniões com entidades privadas por mês, de ${meses[0]} a ${meses[meses.length - 1]}">`;
+  s += `<rect class="lag" x="${x(lag0)}" y="${T}" width="${x(meses.length - 1) - x(lag0) + 4}" height="${H - T - B}"></rect>`;
+  for (const t of ticks) s += `<line class="grid" x1="${L}" x2="${W - R}" y1="${y(t)}" y2="${y(t)}"></line><text x="${L - 6}" y="${y(t) + 3}" text-anchor="end">${fmt.format(t)}</text>`;
+  meses.forEach((m, k) => { if (m.endsWith('-01')) s += `<text x="${x(k)}" y="${H - 8}" text-anchor="middle">${m.slice(0, 4)}</text>`; });
+  s += `<path class="area" d="M${x(0)},${y(0)} L${pts.join(' L')} L${x(meses.length - 1)},${y(0)} Z"></path>`;
+  s += `<polyline class="stroke" points="${pts.join(' ')}"></polyline>`;
+  s += `<circle class="dot" cx="${x(meses.length - 1)}" cy="${y(ys[ys.length - 1])}" r="4"></circle>`;
+  s += `<line class="xh" id="xh" y1="${T}" y2="${H - B}" x1="-10" x2="-10"></line><circle class="dot" id="xd" r="4" cx="-10" cy="-10"></circle>`;
+  s += `<rect id="hit" x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}" fill="transparent"></rect></svg>`;
+  $('#line').innerHTML = s;
+  const svg = $('#line svg'), hit = $('#hit'), xh = $('#xh'), xd = $('#xd');
+  const MES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+  hit.addEventListener('pointermove', (ev) => {
+    const p = svg.createSVGPoint(); p.x = ev.clientX; p.y = ev.clientY; const q = p.matrixTransform(svg.getScreenCTM().inverse());
+    const k = Math.max(0, Math.min(meses.length - 1, Math.round(((q.x - L) / (W - L - R)) * (meses.length - 1))));
+    xh.setAttribute('x1', x(k)); xh.setAttribute('x2', x(k)); xd.setAttribute('cx', x(k)); xd.setAttribute('cy', y(ys[k]));
+    const [aa, mm] = meses[k].split('-');
+    const tot = D.serie_total[meses[k]] || 0;
+    tip(ev, `${MES[+mm - 1]}/${aa}<br><b>${fmt.format(ys[k])}</b> reuniões com privados<br>${Math.round((ys[k] / tot) * 100)}% das ${fmt.format(tot)} reuniões do mês${k >= lag0 ? '<br>registros ainda chegando' : ''}`);
+  });
+  hit.addEventListener('pointerleave', () => { xh.setAttribute('x1', -10); xh.setAttribute('x2', -10); xd.setAttribute('cx', -10); untip(); });
+}
+
+// ministros
+const minState = { key: 'reunioes_privadas', dir: -1 };
+function renderMin() {
+  const ms = D.ministros.filter((m) => m.reunioes_privadas >= 5).map((m) => ({ ...m, share: m.reunioes_privadas / m.reunioes_total }));
+  ms.sort((a, b) => { const k = minState.key; const va = a[k], vb = b[k]; return (typeof va === 'string' ? va.localeCompare(vb, 'pt') : va - vb) * minState.dir; });
+  const cols = [['autoridade', 'Ministro(a)'], ['orgao', 'Pasta'], ['reunioes_privadas', 'Reuniões com privados', 'r'], ['share', 'Parte da agenda', 'r'], [null, 'Com quem mais se reuniu']];
+  let h = '<thead><tr>' + cols.map(([k, n, c]) => `<th scope="col" class="${c || ''}" ${k ? `data-k="${k}" tabindex="0"` : ''} ${k === minState.key ? `aria-sort="${minState.dir < 0 ? 'descending' : 'ascending'}"` : ''}>${n}${k === minState.key ? (minState.dir < 0 ? ' ↓' : ' ↑') : ''}</th>`).join('') + '</tr></thead><tbody>';
+  for (const m of ms) {
+    const o = O.find((x) => x.nome === m.orgao);
+    const quem = m.top.slice(0, 3).map(([i, n]) => `${esc(E[i].rotulo)} <span class="num">(${n})</span>`).join(', ');
+    h += `<tr><td>${esc(titulo(m.autoridade))}<br><span class="cnpj">${m.de === m.ate ? m.de : m.de + '–' + m.ate}</span></td><td title="${esc(m.orgao)}">${esc(o ? o.sigla : m.orgao)}</td><td class="r num">${fmt.format(m.reunioes_privadas)}</td><td class="r"><span class="share"><i><b style="width:${(m.share * 100).toFixed(0)}%"></b></i><span class="num">${(m.share * 100).toFixed(0)}%</span></span></td><td class="who">${quem || '–'}</td></tr>`;
+  }
+  $('#min').innerHTML = h + '</tbody>';
+  $('#min').querySelectorAll('th[data-k]').forEach((th) => {
+    const go = () => { const k = th.dataset.k; if (minState.key === k) minState.dir *= -1; else { minState.key = k; minState.dir = typeof ms[0]?.[k] === 'string' ? 1 : -1; } renderMin(); };
+    th.addEventListener('click', go); th.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); go(); } });
+  });
+}
+
+// tooltip
+const T = $('#tip');
+function tip(ev, html) { T.innerHTML = html; T.hidden = false; const w = T.offsetWidth, h = T.offsetHeight; let x = ev.clientX + 14, y = ev.clientY + 14; if (x + w > innerWidth - 8) x = ev.clientX - w - 14; if (y + h > innerHeight - 8) y = ev.clientY - h - 14; T.style.left = x + 'px'; T.style.top = y + 'px'; }
+function untip() { T.hidden = true; }
+$('#heat').addEventListener('pointerover', (ev) => {
+  const td = ev.target.closest('td[data-o]'); if (!td) return untip();
+  const i = +td.parentElement.dataset.i, o = +td.dataset.o;
+  tip(ev, `${esc(E[i].rotulo)}<br>${esc(O[o].nome)}<br><b>${fmt.format(+td.dataset.v)}</b> reuniões`);
+});
+$('#heat').addEventListener('pointerleave', untip);
+$('#heat').addEventListener('click', (ev) => { const tr = ev.target.closest('tr[data-i]'); if (!tr) return; state.sel = +tr.dataset.i; render(false); $('#ranking').scrollIntoView({ behavior: 'smooth' }); });
+
+function render(full = true) {
+  syncChips();
+  const R = ranking();
+  renderRank(R); renderDetail(R);
+  if (full) { renderHeat(R); renderSetores(); }
+}
+
+facts(); montaFiltros(); render(); renderLine(); renderMin();
+$('#foot').innerHTML = `Dados: <a href="https://www.gov.br/cgu/pt-br/acesso-a-informacao/dados-abertos/arquivos/agenda-de-autoridades" target="_blank" rel="noopener">e-Agendas, CGU</a>, registros de ${D.periodo[0].split('-').reverse().join('/')} a ${D.periodo[1].split('-').reverse().join('/')}. Painel gerado em ${D.gerado_em.split('-').reverse().join('/')}. CPFs de pessoas privadas não são exibidos.`;
+</script>

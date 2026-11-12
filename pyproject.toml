@@ -1,0 +1,8 @@
+[project]
+name = "entmoot"
+description = "Accountability do Estado com dados públicos"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "polars>=2.1.0",
+]

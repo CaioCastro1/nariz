@@ -1,0 +1,7 @@
+# Dados brutos, tabelas casadas e resultados ficam fora do repositório.
+# Tudo em data/ é gerado pelos scripts a partir das fontes públicas.
+data/
+painel/index.html
+.venv/
+__pycache__/
+privado/

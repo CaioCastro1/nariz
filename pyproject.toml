@@ -1,5 +1,5 @@
 [project]
-name = "entmoot"
+name = "nariz"
 description = "Accountability do Estado com dados públicos"
 version = "0.1.0"
 requires-python = ">=3.12"

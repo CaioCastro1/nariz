@@ -1,4 +1,4 @@
-# Entmoot
+# Nariz
 
 Código para cruzar bases abertas do Estado brasileiro e detectar indícios de irregularidade:
 agendas de autoridades, cadastros de servidores, sanções a empresas, contratos públicos, sócios de
@@ -26,7 +26,7 @@ localmente em `data/` e não entram no git.
 Requer [uv](https://docs.astral.sh/uv/) e Python 3.12+.
 
 ```bash
-git clone https://github.com/CaioCastro1/entmoot.git && cd entmoot
+git clone https://github.com/CaioCastro1/nariz.git && cd nariz
 uv sync
 mkdir -p data
 ```
